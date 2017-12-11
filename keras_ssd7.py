@@ -311,4 +311,18 @@ def build_model(image_size,
                                 classes6._keras_shape[1:3],
                                 classes7._keras_shape[1:3]])
 
-    return model, predictor_sizes
+    model_config = {
+        "image_size": image_size,
+        "n_classes": n_classes,
+        "min_scale": min_scale,
+        "max_scale": max_scale,
+        "scales": scales,
+        "aspect_ratios_global": aspect_ratios_global,
+        "aspect_ratios_per_layer": aspect_ratios_per_layer,
+        "two_boxes_for_ar1": two_boxes_for_ar1,
+        "limit_boxes": limit_boxes,
+        "variances": variances,
+        "coords": coords,
+        "normalize_coords": normalize_coords}
+
+    return model, predictor_sizes, model_config
