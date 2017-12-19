@@ -417,24 +417,32 @@ class BatchGenerator:
         with open(labels_path, 'wb') as f:
             pickle.dump(self.labels, f)
 
-    def generate(self,
-                 batch_size=32,
-                 train=True,
-                 ssd_box_encoder=None,
-                 equalize=False,
-                 brightness=False,
-                 flip=False,
-                 translate=False,
-                 scale=False,
-                 max_crop_and_resize=False,
-                 full_crop_and_resize=False,
-                 random_crop=False,
-                 crop=False,
-                 resize=False,
-                 gray=False,
-                 limit_boxes=True,
-                 include_thresh=0.3,
-                 diagnostics=False):
+    def get_unlabeled_images(self, images_path):
+        '''
+        Defines unlabeled images, and populates self.filenames
+        '''
+        self.filenames = [os.path.join(images_path, fname) for fname in os.listdir(images_path)]
+        return
+
+    def generate_unlabeled(self, do_shuffle=False):
+        '''
+        Generates unlabeled dataset, simply returns unmodified image from filenames stored
+        '''
+        filenames = shuffle(self.filenames) if do_shuffle else self.filenames
+        for filename in filenames:
+            with Image.open(filename) as img:
+                Xmat = np.array(img)
+                shape = list(Xmat.shape)
+                Xmat = Xmat.reshape([1]+shape)
+            yield (Xmat, None, [filename])
+
+
+    def generate(
+        self, batch_size=32, train=True, ssd_box_encoder=None, equalize=False,
+        brightness=False, flip=False, translate=False, scale=False,
+        max_crop_and_resize=False, full_crop_and_resize=False, random_crop=False,
+        crop=False, resize=False, gray=False, limit_boxes=True, include_thresh=0.3,
+        diagnostics=False):
         '''
         Generate batches of samples and corresponding labels indefinitely from
         lists of filenames and labels.
